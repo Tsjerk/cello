@@ -1,0 +1,19 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "cello"
+version = "0.1.0"
+description = "A deeper, richer violinplot: density correlated with auxiliary features."
+readme = "README.md"
+license = { text = "MIT" }
+authors = [
+    { name = "Tsjerk A. Wassenaar" }
+]
+requires-python = ">=3.8"
+
+dependencies = [
+    "matplotlib>=3.5",
+    "numpy>=1.22",
+]
