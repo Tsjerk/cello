@@ -17,6 +17,3 @@ dependencies = [
     "matplotlib>=3.5",
     "numpy>=1.22",
 ]
-
-[tool.setuptools]
-py-modules = ["cello"]
