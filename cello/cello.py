@@ -1,7 +1,75 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-def cello(values, c=None, position=None, bw=0.5, cbw=None, scale=10, 
+
+def determine_kde_bw(values, hint=None, rule='scott'):
+    """
+    Determine bandwidth(s) for kernel density estimation.
+    
+    Parameters
+    ----------
+    values : array_like
+        Input data. If 1-D, treated as single series. If 2-D, each row
+        is a separate series.
+    hint : None, float, 'global', 'local', or array_like, optional
+        Bandwidth specification:
+          - None: compute per-series bandwidth (equivalent to 'local')
+          - float or int: use this value for all series
+          - 'global': compute single bandwidth from all data combined
+          - 'local': compute separate bandwidth for each series
+          - array_like of length n: explicit bandwidth per series
+    rule : {'scott', 'silverman'}, default='scott'
+        Rule for automatic bandwidth calculation.
+    
+    Returns
+    -------
+    tuple of float
+        Bandwidth values, one per series (or repeated if global/fixed).
+    
+    Raises
+    ------
+    ValueError
+        If hint is an array with incorrect length or an unrecognized value.
+    """
+    values = np.asarray(values)
+    
+    ## Handle multiple series
+    
+    if values.ndim > 1:
+        n = len(values)
+        if hint is None or hint == 'global':
+            # Global bandwidth: compute from all data
+            return n*(determine_kde_bw(values.flatten(), None, rule), )
+        elif hint == 'local':
+            # Local bandwidth: compute per series (None or 'local')
+            return tuple(determine_kde_bw(series, None, rule) for series in values)
+        elif isinstance(hint, (float, int)):
+            # Fixed bandwidth for all series
+            return n*(hint, )
+        elif isinstance(hint, (np.ndarray, list, tuple)) and len(hint) == n:
+            # Explicit bandwidth per series
+            return tuple(hint)
+        raise ValueError(
+            f"Invalid hint: {hint}. Must be a number, 'global', 'local', None, "
+            f"or an array of length {n}."
+        )
+            
+    ## Handle single series
+
+    if isinstance(hint, (int, float)):
+        return hint
+    
+    if rule == 'scott':
+        return values.std() * values.size**(-1/5)
+    elif rule == 'silverman':
+        std = values.std()
+        iqr = (np.percentile(values, 75) - np.percentile(values, 25)) / 1.349
+        return (values.size * 3/4)**(-1/5) * min(std, iqr)
+    raise ValueError(f"Unknown rule: {rule}. Use 'scott' or 'silverman'.")
+        
+
+
+def cello(values, c=None, position=None, bw=None, cbw=None, scale=10, 
           points=100, horizontal=False, side='both', ax=None, **kwargs):
     """
     Draw a colored violin-like "cello" plot showing smoothed value distributions.
@@ -78,9 +146,20 @@ def cello(values, c=None, position=None, bw=0.5, cbw=None, scale=10,
     >>> groups = [np.random.randn(100) + i for i in range(3)]
     >>> cello(np.array(groups), c='plasma', horizontal=True)
     """     
+
+    ## Overall settings
+
     if ax is None:
         ax = plt.gca()
 
+    bw = determine_kde_bw(values, bw, rule=kwargs.get('bwrule', 'scott'))
+    if cbw is None:
+        cbw = bw
+    else:
+        cbw = determine_kde_bw(values, cbw, rule=kwargs.get('bwrule', 'scott'))
+
+    ## Processing cello ensemble
+    
     # Handling array cello plots
     zorder = kwargs.pop('zorder', None)
     if values.ndim == 2:
@@ -94,10 +173,12 @@ def cello(values, c=None, position=None, bw=0.5, cbw=None, scale=10,
                 colors = c[idx]
             zord = pos if zorder is None else zorder
             group.append(cello(
-                vals, colors, position=pos, bw=bw, cbw=cbw, scale=scale, side=side, 
+                vals, colors, position=pos, bw=bw[idx], cbw=cbw[idx], scale=scale, side=side, 
                 horizontal=horizontal, zorder=zord, ax=ax, **kwargs
             ))
         return {'group': group, 'ax': ax}
+
+    ## Processing solo cello
     
     # Color handling
     # a. No color (None); handled below
