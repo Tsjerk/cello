@@ -195,7 +195,7 @@ def cello(values, c=None, position=None, bw=None, cbw=None, scale=10,
             c = np.tile(to_rgba(c), (len(values), 1))
         
     # Single cello plot
-    x = np.linspace(values.min(), values.max(), points)
+    x = np.linspace(values.min() - 3*bw, values.max() + 3*bw, points)
     w = np.exp(-((x[:, None] - values[None, :])**2) / (bw**2))
     y = scale * w.sum(axis=1) / w.sum()  # normalized density
         
@@ -218,8 +218,8 @@ def cello(values, c=None, position=None, bw=None, cbw=None, scale=10,
     if side != 'left':
         xy = (x, position+y) if horizontal else (position+y, x)
         lines.append(ax.plot(*xy, c='k', linewidth=0.5, zorder=zorder))
-    # - Base line
-    xy = [[values.min()-.5, values.max()+.5], [position, position]]
+    # - Base line, always marking the domain of the data
+    xy = [[values.min(), values.max()], [position, position]]
     lines.append(ax.plot(xy[not horizontal], xy[horizontal], c='k', linewidth=0.5, zorder=zorder))
     
     return {'points': x, 'density': y, 'ax': ax, 'mesh': mesh}
