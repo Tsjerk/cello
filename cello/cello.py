@@ -80,7 +80,7 @@ def cello(values, c=None, position=None, bw=0.5, cbw=None, scale=10,
     """     
     if ax is None:
         ax = plt.gca()
-    
+
     # Handling array cello plots
     zorder = kwargs.pop('zorder', None)
     if values.ndim == 2:
@@ -104,13 +104,14 @@ def cello(values, c=None, position=None, bw=0.5, cbw=None, scale=10,
     # b. Named color (str)
     # c. Single color (3 or 4 tuple)
     # d. Color per value (n by 3-or-4 array)
-    from matplotlib.colors import to_rgba
-    if (
-        isinstance(c, str) or 
-        np.ndim(c) == 0 or 
-        (isinstance(c, (tuple, list)) and len(c) in (3, 4))
-    ):
-        c = np.tile(to_rgba(c), (len(values), 1))
+    if c is not None:
+        if (
+                isinstance(c, str) or
+                np.ndim(c) == 0 or
+                (isinstance(c, (tuple, list)) and len(c) in (3, 4))
+        ):
+            from matplotlib.colors import to_rgba
+            c = np.tile(to_rgba(c), (len(values), 1))
         
     # Single cello plot
     x = np.linspace(values.min(), values.max(), points)
