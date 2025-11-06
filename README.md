@@ -18,7 +18,7 @@ The **cello plot** computes a smoothed density over the data and renders it as a
 Until a PyPI release is appropriate, you can install directly from Git:
 
 ```bash
-pip install git+https://github.com/<yourname>/cello
+pip install git+https://github.com/Tsjerk/cello
 ```
 
 Or simply copy the `cello.py` file into your project.
@@ -30,32 +30,28 @@ Or simply copy the `cello.py` file into your project.
 ### Basic example
 
 ```python
-import numpy as np
-import matplotlib.pyplot as plt
-from cello import cello
-
-values = np.random.randn(200)
-cello(values, c='skyblue', position=1)
+x = np.random.randn(300)
+y = np.random.randn(300)
+colors = plt.cm.plasma((y - y.min()) / (y.max() - y.min()))
+cello(x, c=colors, position=1, side='right')
 plt.show()
 ```
 
 ### Grouped distributions
 
 ```python
-groups = np.array([
-    np.random.randn(150) + i
-    for i in range(3)
-])
-cello(groups, scale=12)
-plt.show()
-```
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.datasets import load_iris
+from cello import cello
 
-### With per-sample color
+iris = load_iris()
+X = iris['data']
 
-```python
-x = np.random.randn(300)
-colors = plt.cm.plasma((x - x.min()) / (x.max() - x.min()))
-cello(x, c=colors, position=1, side='right')
+colors = np.repeat(((1,0,0.5), (0.5,1,0), (0,0.5,1)), 50, axis=0)
+cello(X.T, c=colors)
+plt.xticks(range(1, 5), iris['feature_names'])
+plt.ylabel('size (cm)')
 plt.show()
 ```
 
@@ -135,12 +131,4 @@ Want to contribute? Pull requests are welcome.
 MIT License — feel free to use, modify, and share.
 
 ---
-
-If you'd like, I can also:
-✔ generate example images for the README
-✔ write a minimal `pyproject.toml` for packaging
-✔ add a gallery notebook
-✔ set up CI for unit tests (optional)
-
-Would you like me to produce the example plots so you can include thumbnails in the README?
 
