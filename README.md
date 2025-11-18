@@ -142,11 +142,11 @@ If you use Cello in your research, please cite:
   year = {2025},
   publisher = {Zenodo},
   version = {1.0.0},
-  doi = {10.5281/zenodo.XXXXXXX},
-  url = {https://doi.org/10.5281/zenodo.XXXXXXX}
+  doi = {10.5281/zenodo.17637980},
+  url = {https://doi.org/10.5281/zenodo.17637980}
 }
 ```
 
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.XXXXXXX.svg)](https://doi.org/10.5281/zenodo.XXXXXXX)
+[![DOI](https://zenodo.org/badge/1082818647.svg)](https://doi.org/10.5281/zenodo.17637980)
 
 *Note: DOI will be updated after first Zenodo release*

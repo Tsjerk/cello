@@ -6,6 +6,7 @@ authors:
     orcid: "https://orcid.org/0000-0002-6345-0266"
 title: "Cello: Color-Encoded Density Plots for Multivariate Visualization"
 version: 1.0.0
+doi: https://doi.org/10.5281/zenodo.17637980
 date-released: 2025-11-07
 url: "https://github.com/Tsjerk/cello"
 repository-code: "https://github.com/Tsjerk/cello"
