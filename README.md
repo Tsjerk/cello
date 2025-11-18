@@ -132,3 +132,21 @@ MIT License — feel free to use, modify, and share.
 
 ---
 
+## Citation
+
+If you use Cello in your research, please cite:
+```bibtex
+@software{wassenaar2025cello,
+  author = {Wassenaar, Tsjerk A.},
+  title = {Cello: Color-Encoded Density Plots for Multivariate Visualization},
+  year = {2025},
+  publisher = {Zenodo},
+  version = {1.0.0},
+  doi = {10.5281/zenodo.XXXXXXX},
+  url = {https://doi.org/10.5281/zenodo.XXXXXXX}
+}
+```
+
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.XXXXXXX.svg)](https://doi.org/10.5281/zenodo.XXXXXXX)
+
+*Note: DOI will be updated after first Zenodo release*

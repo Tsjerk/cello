@@ -1,0 +1,23 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+authors:
+  - family-names: "Wassenaar"
+    given-names: "Tsjerk A."
+    orcid: "https://orcid.org/0000-0002-6345-0266"
+title: "Cello: Color-Encoded Density Plots for Multivariate Visualization"
+version: 1.0.0
+date-released: 2025-11-07
+url: "https://github.com/Tsjerk/cello"
+repository-code: "https://github.com/Tsjerk/cello"
+keywords:
+  - visualization
+  - kernel-density-estimation
+  - multivariate-analysis
+  - python
+license: MIT
+abstract: >
+  Cello is a Python library for creating color-weighted kernel density 
+  visualizations that reveal correlation structure in multivariate data. 
+  By encoding a reference variable's ordering through color, Cello enables 
+  rapid visual assessment of correlation patterns across multiple variables 
+  without explicit statistical computation.

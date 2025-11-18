@@ -1,0 +1,30 @@
+{
+  "title": "Cello: Color-Encoded Density Plots for Multivariate Visualization",
+  "description": "A Python library for creating color-weighted kernel density visualizations that reveal correlation structure and compositional patterns in multivariate data. Cello enables rapid visual assessment of how variables relate to a reference ordering through color-coded marginal distributions.",
+  "creators": [
+    {
+      "name": "Wassenaar, Tsjerk A.",
+      "affiliation": "University of Groningen",
+      "orcid": "0000-0002-6345-0266"
+    }
+  ],
+  "keywords": [
+    "visualization",
+    "data analysis",
+    "kernel density estimation",
+    "multivariate analysis",
+    "PCA visualization",
+    "life sciences",
+    "Python"
+  ],
+  "license": "MIT",
+  "upload_type": "software",
+  "access_right": "open",
+  "related_identifiers": [
+    {
+      "scheme": "url",
+      "identifier": "https://github.com/Tsjerk/cello",
+      "relation": "isSupplementTo"
+    }
+  ]
+}
