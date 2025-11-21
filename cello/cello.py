@@ -200,7 +200,11 @@ def cello(values, c=None, position=None, basis=None, bw=None, cbw=None, scale=10
             c = np.tile(to_rgba(c), (len(values), 1))
         
     # Single cello plot
-    x = np.linspace(values.min() - 3*bw, values.max() + 3*bw, points)
+    if isinstance(points, int):
+        x = np.linspace(values.min() - 3*bw, values.max() + 3*bw, points)
+    else:
+        x = np.asarray(points)
+
     w = np.exp(-((x[:, None] - values[None, :])**2) / (bw**2))
     y = scale * w.sum(axis=1) / w.sum()  # normalized density
     if basis is not None:
@@ -232,29 +236,20 @@ def cello(values, c=None, position=None, basis=None, bw=None, cbw=None, scale=10
         c = np.clip((w @ c) / w.sum(axis=1)[:, None], 0, 1)
         cc = np.array([c, c])
         if basis is not None:
-            cc = np.hstack([c, c[::-1]])
+            cc = np.hstack([cc, cc[:, ::-1]])
         mesh = ax.pcolormesh(xx, yy, cc, shading='gouraud', zorder=zorder)
 
-    # - Left line
+    # - Outlines
     lines = []
-    
-    lines.append(ax.plot(xx[0,:len(x)], yy[0,:len(y)], c='k', linewidth=0.5, zorder=zorder))
-    lines.append(ax.plot(xx[0,len(x):], yy[0,len(y):], c='k', linewidth=0.5, zorder=zorder))
-    if basis is not None and side not in ('left', 'right'):
-        lines.append(ax.plot(xx[0,:len(x)], yy[1,:len(y)], c='k', linewidth=0.5, zorder=zorder))
-        lines.append(ax.plot(xx[0,:len(x)], yy[1,:len(y)], c='k', linewidth=0.5, zorder=zorder))
+    lines.append(ax.plot(xx[0,:len(x)], yy[0,:len(x)], c='k', linewidth=0.5, zorder=zorder))
+    lines.append(ax.plot(xx[1,:len(x)], yy[0,:len(x)], c='k', linewidth=0.5, zorder=zorder))
+    if 1 or basis is not None and side not in ('left', 'right'):
+        lines.append(ax.plot(xx[0,len(x):], yy[0,len(x):], c='k', linewidth=0.5, zorder=zorder))
+        lines.append(ax.plot(xx[1,len(x):], yy[0,len(x):], c='k', linewidth=0.5, zorder=zorder))
                  
-                         
-    #if side != 'right':
-    #    xy = (x, position-y) if horizontal else (position-y, x)
-    #    lines.append(ax.plot(*xy, c='k', linewidth=0.5, zorder=zorder))
-
-    # - Right line
-    #if side != 'left':
-    #    xy = (x, position+y) if horizontal else (position+y, x)
-    #    lines.append(ax.plot(*xy, c='k', linewidth=0.5, zorder=zorder))
-
     # - Base line, always marking the domain of the data
+    #   Thicker line draws data, thinner line extent of density
+    #   TODO: control line thicknesses
     xy = [[x.min(), x.max()], [position, position]]
     lines.append(ax.plot(xy[not horizontal], xy[horizontal], c='k', linewidth=0.5, zorder=zorder))
     xy = [[values.min(), values.max()], [position, position]]
