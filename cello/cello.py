@@ -69,7 +69,7 @@ def determine_kde_bw(values, hint=None, rule='scott'):
         
 
 
-def cello(values, c=None, position=None, bw=None, cbw=None, scale=10, 
+def cello(values, c=None, position=None, basis=None, bw=None, cbw=None, scale=10, 
           points=100, horizontal=False, side='both', ax=None, **kwargs):
     """
     Draw a colored violin-like "cello" plot showing smoothed value distributions.
@@ -92,6 +92,8 @@ def cello(values, c=None, position=None, bw=None, cbw=None, scale=10,
     position : float or sequence, optional
         Vertical (or horizontal, if `horizontal=True`) position(s) of the cello(s).
         Defaults to sequential positions starting at 1.
+    basis : sequence, optional
+        The basis for drawing the density, allowing stacked density plots.
     bw : float, default=0.5
         Bandwidth controlling the smoothness of the density.
     cbw : float, optional
@@ -173,9 +175,12 @@ def cello(values, c=None, position=None, bw=None, cbw=None, scale=10,
                 colors = c[idx]
             zord = pos if zorder is None else zorder
             group.append(cello(
-                vals, colors, position=pos, bw=bw[idx], cbw=cbw[idx], scale=scale, side=side, 
-                horizontal=horizontal, zorder=zord, ax=ax, **kwargs
+                vals, colors, position=pos, basis=basis, bw=bw[idx], cbw=cbw[idx],
+                scale=scale, side=side, horizontal=horizontal, zorder=zord, ax=ax,
+                **kwargs
             ))
+            if basis is not None:
+                basis = basis + group[-1]['density']
         return {'group': group, 'ax': ax}
 
     ## Processing solo cello
@@ -198,28 +203,61 @@ def cello(values, c=None, position=None, bw=None, cbw=None, scale=10,
     x = np.linspace(values.min() - 3*bw, values.max() + 3*bw, points)
     w = np.exp(-((x[:, None] - values[None, :])**2) / (bw**2))
     y = scale * w.sum(axis=1) / w.sum()  # normalized density
-        
+    if basis is not None:
+        y += basis
+
+    # Modify for ribbon
+    xx = np.array([x, x])
+    yy = (np.array([y, -y]).T * (1, side not in ('right', 'left'))).T
+    if basis is not None:
+        yy[1] = basis
+        if side == 'left':
+            pass
+        elif side == 'right':
+            yy = -yy
+        else:
+            xx = np.hstack([xx, xx[:, ::-1]])
+            yy = np.hstack([yy, -yy[:, ::-1]])
+    if position is not None:
+        yy += position
+    xx, yy = [xx, yy] if horizontal else [yy, xx] 
+    
     # Plotting
+    
     # - Body
     mesh = None
     if c is not None:
         if cbw is not None:
             w **= (bw/cbw)**2
         c = np.clip((w @ c) / w.sum(axis=1)[:, None], 0, 1)
-        xy = [[x, x], np.array([-(side != 'right') * y, (side != 'left') * y]) + position]
-        cc = [c, c]
-        mesh = ax.pcolormesh(xy[not horizontal], xy[horizontal], cc, shading='gouraud', zorder=zorder)
+        cc = np.array([c, c])
+        if basis is not None:
+            cc = np.hstack([c, c[::-1]])
+        mesh = ax.pcolormesh(xx, yy, cc, shading='gouraud', zorder=zorder)
+
     # - Left line
     lines = []
-    if side != 'right':
-        xy = (x, position-y) if horizontal else (position-y, x)
-        lines.append(ax.plot(*xy, c='k', linewidth=0.5, zorder=zorder))
+    
+    lines.append(ax.plot(xx[0,:len(x)], yy[0,:len(y)], c='k', linewidth=0.5, zorder=zorder))
+    lines.append(ax.plot(xx[0,len(x):], yy[0,len(y):], c='k', linewidth=0.5, zorder=zorder))
+    if basis is not None and side not in ('left', 'right'):
+        lines.append(ax.plot(xx[0,:len(x)], yy[1,:len(y)], c='k', linewidth=0.5, zorder=zorder))
+        lines.append(ax.plot(xx[0,:len(x)], yy[1,:len(y)], c='k', linewidth=0.5, zorder=zorder))
+                 
+                         
+    #if side != 'right':
+    #    xy = (x, position-y) if horizontal else (position-y, x)
+    #    lines.append(ax.plot(*xy, c='k', linewidth=0.5, zorder=zorder))
+
     # - Right line
-    if side != 'left':
-        xy = (x, position+y) if horizontal else (position+y, x)
-        lines.append(ax.plot(*xy, c='k', linewidth=0.5, zorder=zorder))
+    #if side != 'left':
+    #    xy = (x, position+y) if horizontal else (position+y, x)
+    #    lines.append(ax.plot(*xy, c='k', linewidth=0.5, zorder=zorder))
+
     # - Base line, always marking the domain of the data
-    xy = [[values.min(), values.max()], [position, position]]
+    xy = [[x.min(), x.max()], [position, position]]
     lines.append(ax.plot(xy[not horizontal], xy[horizontal], c='k', linewidth=0.5, zorder=zorder))
+    xy = [[values.min(), values.max()], [position, position]]
+    lines.append(ax.plot(xy[not horizontal], xy[horizontal], c='k', linewidth=2, zorder=zorder))
     
     return {'points': x, 'density': y, 'ax': ax, 'mesh': mesh}
